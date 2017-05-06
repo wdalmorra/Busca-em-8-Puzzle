@@ -4,6 +4,9 @@ from collections import deque
 
 class Puzzle(object):
 	def __init__(self, size):
+
+		self.path = []
+		
 		self.size = size
 		self.box = []
 		for i in range(0,self.size):
@@ -19,10 +22,11 @@ class Puzzle(object):
 		# print self.box
 
 	def copy(self, p):
-		
+
 		self.box = deepcopy(p.box)
 		self.empty_px = p.empty_px
 		self.empty_py = p.empty_py
+		self.path.extend(p.path)
 
 		# print self.box
 
@@ -32,6 +36,7 @@ class Puzzle(object):
 			self.box[self.empty_px][self.empty_py] = self.box[self.empty_px][self.empty_py - 1]
 			self.box[self.empty_px][self.empty_py - 1] = 0
 			self.empty_py -= 1
+			self.path.append([self.empty_px, self.empty_py])
 			# print self.box
 			return True
 		else:
@@ -42,6 +47,7 @@ class Puzzle(object):
 			self.box[self.empty_px][self.empty_py] = self.box[self.empty_px][self.empty_py + 1]
 			self.box[self.empty_px][self.empty_py + 1] = 0
 			self.empty_py += 1
+			self.path.append([self.empty_px, self.empty_py])
 			# print self.box
 			return True
 		else:
@@ -52,6 +58,7 @@ class Puzzle(object):
 			self.box[self.empty_px][self.empty_py] = self.box[self.empty_px - 1][self.empty_py]
 			self.box[self.empty_px - 1][self.empty_py] = 0
 			self.empty_px -= 1
+			self.path.append([self.empty_px, self.empty_py])
 			# print self.box
 			return True
 		else:
@@ -62,6 +69,7 @@ class Puzzle(object):
 			self.box[self.empty_px][self.empty_py] = self.box[self.empty_px + 1][self.empty_py]
 			self.box[self.empty_px + 1][self.empty_py] = 0
 			self.empty_px += 1
+			self.path.append([self.empty_px, self.empty_py])
 			# print self.box
 			return True
 		else:
@@ -73,10 +81,7 @@ class Puzzle(object):
 			for j in xrange(self.size):
 				if self.box[i][j] != ((i*self.size)+j+1):
 					result += 1
-		# print "--I--"
-		# print self.box
-		# print result
-		# print "--F--"
+
 		if result == 1:
 			return True
 		else:
@@ -126,7 +131,79 @@ class Puzzle(object):
 			if happened:
 				cont += 1
 
-		print self.box
+		# print self.box
+
+class Depth(object):
+	
+	def __init__(self, initial_state, size):
+		
+		self.open_nodes = []
+		self.visited = []
+		self.initial_state = deepcopy(initial_state)
+		self.open_nodes.append(self.initial_state)
+
+		self.size = size
+
+	def search(self):
+		
+		t_open = 1
+
+		t_visited = 0
+
+		while self.open_nodes:
+
+			s = self.open_nodes.pop()
+
+			self.visited.append(s)
+			t_visited += 1
+
+			if s.is_final():
+				print "Visited: "+ str(t_visited)
+				print "Open: "+ str(t_open)
+				return s
+			# else: 
+				# print "Not final"
+			
+			# Abre vizinho de cima se possivel
+			up = Puzzle(self.size)
+			up.copy(s)
+			if up.move_up():
+				if not self.check_visited(up):
+					self.open_nodes.append(up)
+					t_open += 1
+
+			# Abre vizinho de baixo se possivel
+			down = Puzzle(self.size)
+			down.copy(s)
+			if down.move_down():
+				if not self.check_visited(down):
+					self.open_nodes.append(down)
+					t_open += 1
+
+			# Abre vizinho da esquerda se possivel
+			left = Puzzle(self.size)
+			left.copy(s)
+			if left.move_left():
+				if not self.check_visited(left):
+					self.open_nodes.append(left)
+					t_open += 1
+
+			# Abre vizinho de direita se possivel
+			right = Puzzle(self.size)
+			right.copy(s)
+			if right.move_right():
+				if not self.check_visited(right):
+					self.open_nodes.append(right)
+					t_open += 1
+
+		return None
+
+	def check_visited(self, state):
+		for x in self.visited:
+			if x.compare(state):
+				return True
+		return False
+
 
 class Breadth(object):
 	
@@ -199,20 +276,43 @@ class Breadth(object):
 				return True
 		return False
 
+def print_box(box):
+	for x in box:
+		print x
+	print ""
+
+def print_result(path, i_state, empty_p):
+	
+	print_box(i_state)
+
+	for x in path:
+		i_state[empty_p[0]][empty_p[1]] = i_state[x[0]][x[1]]
+		i_state[x[0]][x[1]] = 0
+		print_box(i_state)
+		empty_p[0] = x[0]
+		empty_p[1] = x[1]
+
+
 def main():
-	print "p: "
+	# print "p: "
 	p = Puzzle(3)
-	print "p shuffle: "
-	p.shuffle(1000)
-	print "p: "
-	print p.box
+	# print "p shuffle: "
+	p.shuffle(50)
+	# print "p: "
+	# print_box(p.box)
 
 	bfs = Breadth(p, 3)
+	# dfs = Depth(p, 3)
 	result = bfs.search()
+	# result = dfs.search()
+
+	print_result(result.path, p.box, [p.empty_px, p.empty_py])
+
 	if result != None:
-		print result.box
+		print "Resposta Encontrada"
+		print "Numero de Passos: " + str(len(result.path))
 	else:
-		print "Resposta nao encontrada!"
+		print "Resposta Nao Encontrada!"
 
 
 
