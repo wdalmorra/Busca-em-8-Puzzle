@@ -71,9 +71,20 @@ class Puzzle(object):
 		result = 0
 		for i in xrange(self.size):
 			for j in xrange(self.size):
-				result += self.box[i][j] - i*self.size+j+1
+				if self.box[i][j] != ((i*self.size)+j+1):
+					result += 1
+		# print "--I--"
+		# print self.box
+		# print result
+		# print "--F--"
+		if result == 1:
+			return True
+		else:
+			return False
 
-		if result == -1 * self.size*self.size:
+	def compare(self, state):
+		if self.box == state.box:
+			# print "conflict"
 			return True
 		else:
 			return False
@@ -130,11 +141,20 @@ class Breadth(object):
 
 	def search(self):
 		
+		t_open = 1
+
+		t_visited = 0
+
 		while self.open_nodes:
 
 			s = self.open_nodes.popleft()
 
+			self.visited.append(s)
+			t_visited += 1
+
 			if s.is_final():
+				print "Visited: "+ str(t_visited)
+				print "Open: "+ str(t_open)
 				return s
 			# else: 
 				# print "Not final"
@@ -143,33 +163,47 @@ class Breadth(object):
 			up = Puzzle(self.size)
 			up.copy(s)
 			if up.move_up():
-				self.open_nodes.append(up)
+				if not self.check_visited(up):
+					self.open_nodes.append(up)
+					t_open += 1
 
 			# Abre vizinho de baixo se possivel
 			down = Puzzle(self.size)
 			down.copy(s)
 			if down.move_down():
-				self.open_nodes.append(down)
+				if not self.check_visited(down):
+					self.open_nodes.append(down)
+					t_open += 1
 
 			# Abre vizinho da esquerda se possivel
 			left = Puzzle(self.size)
 			left.copy(s)
 			if left.move_left():
-				self.open_nodes.append(left)
+				if not self.check_visited(left):
+					self.open_nodes.append(left)
+					t_open += 1
 
 			# Abre vizinho de direita se possivel
 			right = Puzzle(self.size)
 			right.copy(s)
 			if right.move_right():
-				self.open_nodes.append(right)
+				if not self.check_visited(right):
+					self.open_nodes.append(right)
+					t_open += 1
 
 		return None
+
+	def check_visited(self, state):
+		for x in self.visited:
+			if x.compare(state):
+				return True
+		return False
 
 def main():
 	print "p: "
 	p = Puzzle(3)
 	print "p shuffle: "
-	p.shuffle(100)
+	p.shuffle(1000)
 	print "p: "
 	print p.box
 
