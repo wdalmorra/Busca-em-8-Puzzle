@@ -19,7 +19,12 @@ class Puzzle(object):
 		self.empty_px = self.size-1
 		self.empty_py = self.size-1
 
+		self.depth = 0
+
 		# print self.box
+
+	def setDepth(self, f_depth):
+		self.depth = f_depth + 1
 
 	def copy(self, p):
 
@@ -154,7 +159,7 @@ class Depth(object):
 
 			s = self.open_nodes.pop()
 
-			self.visited.append(s)
+			self.visited.append(s.box)
 			t_visited += 1
 
 			if s.is_final():
@@ -168,7 +173,8 @@ class Depth(object):
 			up = Puzzle(self.size)
 			up.copy(s)
 			if up.move_up():
-				if not self.check_visited(up):
+				if not up.box in self.visited: 
+				# if not self.check_visited(up):
 					self.open_nodes.append(up)
 					t_open += 1
 
@@ -176,7 +182,8 @@ class Depth(object):
 			down = Puzzle(self.size)
 			down.copy(s)
 			if down.move_down():
-				if not self.check_visited(down):
+				if not down.box in self.visited: 
+				# if not self.check_visited(down):
 					self.open_nodes.append(down)
 					t_open += 1
 
@@ -184,7 +191,8 @@ class Depth(object):
 			left = Puzzle(self.size)
 			left.copy(s)
 			if left.move_left():
-				if not self.check_visited(left):
+				if not left.box in self.visited: 
+				# if not self.check_visited(left):
 					self.open_nodes.append(left)
 					t_open += 1
 
@@ -192,7 +200,8 @@ class Depth(object):
 			right = Puzzle(self.size)
 			right.copy(s)
 			if right.move_right():
-				if not self.check_visited(right):
+				if not right.box in self.visited: 
+				# if not self.check_visited(right):
 					self.open_nodes.append(right)
 					t_open += 1
 
@@ -223,10 +232,10 @@ class Breadth(object):
 		t_visited = 0
 
 		while self.open_nodes:
-
+			# print len(self.open_nodes)
 			s = self.open_nodes.popleft()
 
-			self.visited.append(s)
+			self.visited.append(s.box)
 			t_visited += 1
 
 			if s.is_final():
@@ -240,7 +249,8 @@ class Breadth(object):
 			up = Puzzle(self.size)
 			up.copy(s)
 			if up.move_up():
-				if not self.check_visited(up):
+				if not up.box in self.visited: 
+				# if not self.check_visited(up):
 					self.open_nodes.append(up)
 					t_open += 1
 
@@ -248,7 +258,8 @@ class Breadth(object):
 			down = Puzzle(self.size)
 			down.copy(s)
 			if down.move_down():
-				if not self.check_visited(down):
+				if not down.box in self.visited: 
+				# if not self.check_visited(down):
 					self.open_nodes.append(down)
 					t_open += 1
 
@@ -256,7 +267,8 @@ class Breadth(object):
 			left = Puzzle(self.size)
 			left.copy(s)
 			if left.move_left():
-				if not self.check_visited(left):
+				if not left.box in self.visited: 
+				# if not self.check_visited(left):
 					self.open_nodes.append(left)
 					t_open += 1
 
@@ -264,7 +276,8 @@ class Breadth(object):
 			right = Puzzle(self.size)
 			right.copy(s)
 			if right.move_right():
-				if not self.check_visited(right):
+				if not right.box in self.visited: 
+				# if not self.check_visited(right):
 					self.open_nodes.append(right)
 					t_open += 1
 
@@ -275,6 +288,96 @@ class Breadth(object):
 			if x.compare(state):
 				return True
 		return False
+
+class ItetariveDeapth(object):
+	def __init__(self, initial_state, size):
+		
+		self.open_nodes = []
+		self.visited = []
+		self.initial_state = deepcopy(initial_state)
+
+		self.size = size
+
+	def search(self):
+
+		t_open = 1
+
+		t_visited = 0
+
+		depth = 0
+		
+		while True:
+
+			self.open_nodes = []
+			self.visited = []
+			self.open_nodes.append(self.initial_state)
+
+			while self.open_nodes:
+
+				s = self.open_nodes.pop()
+
+				self.visited.append(s.box)
+				t_visited += 1
+
+				if s.is_final():
+					print "Visited: "+ str(t_visited)
+					print "Open: "+ str(t_open)
+					return s
+				# else: 
+					# print "Not final"
+				# print depth
+				if s.depth < depth:
+				
+					# Abre vizinho de cima se possivel
+					up = Puzzle(self.size)
+					up.copy(s)
+					if up.move_up():
+						if not up.box in self.visited: 
+						# if not self.check_visited(up):
+							up.setDepth(s.depth)
+							self.open_nodes.append(up)
+							t_open += 1
+
+					# Abre vizinho de baixo se possivel
+					down = Puzzle(self.size)
+					down.copy(s)
+					if down.move_down():
+						if not down.box in self.visited: 
+						# if not self.check_visited(down):
+							down.setDepth(s.depth)
+							self.open_nodes.append(down)
+							t_open += 1
+
+					# Abre vizinho da esquerda se possivel
+					left = Puzzle(self.size)
+					left.copy(s)
+					if left.move_left():
+						if not left.box in self.visited: 
+						# if not self.check_visited(left):
+							left.setDepth(s.depth)
+							self.open_nodes.append(left)
+							t_open += 1
+
+					# Abre vizinho de direita se possivel
+					right = Puzzle(self.size)
+					right.copy(s)
+					if right.move_right():
+						if not right.box in self.visited: 
+						# if not self.check_visited(right):
+							right.setDepth(s.depth)
+							self.open_nodes.append(right)
+							t_open += 1
+			depth += 1
+			print depth
+		return None
+
+	def check_visited(self, state):
+		for x in self.visited:
+			if x.compare(state):
+				return True
+		return False
+		
+		
 
 def print_box(box):
 	for x in box:
@@ -298,13 +401,21 @@ def main():
 	p = Puzzle(3)
 	# print "p shuffle: "
 	p.shuffle(50)
+	
+	p.box = [[1,2,3],[4,7,5],[0,6,8]]  # 16 passos
+	# p.box = [[3,1,2],[4,0,5],[6,7,8]]  # 20 passos
+	p.empty_px = 2
+	p.empty_py = 0
+	
 	# print "p: "
 	# print_box(p.box)
 
-	bfs = Breadth(p, 3)
-	# dfs = Depth(p, 3)
-	result = bfs.search()
-	# result = dfs.search()
+	# bfs = Breadth(p, 3)
+	dfs = Depth(p, 3)
+	# idfs = ItetariveDeapth(p, 3)
+	# result = bfs.search()
+	result = dfs.search()
+	# result = idfs.search()
 
 	print_result(result.path, p.box, [p.empty_px, p.empty_py])
 
