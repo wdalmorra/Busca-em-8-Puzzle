@@ -1,6 +1,7 @@
 from random import randint
 from copy import deepcopy
 from collections import deque
+import sys
 
 class Puzzle(object):
 	def __init__(self, size):
@@ -150,11 +151,14 @@ class Depth(object):
 
 	def search(self):
 		
-		t_open = 1
+		max_open = 1
 
-		t_visited = 0
+		# t_visited = 0
 
 		while self.open_nodes:
+
+			if len(self.open_nodes) > max_open:
+				max_open = len(self.open_nodes)
 
 			s = self.open_nodes.pop()
 
@@ -163,7 +167,7 @@ class Depth(object):
 
 			if s.is_final():
 				# print "Visited: "+ str(t_visited)
-				print "Open: "+ str(t_open)
+				print "Open: "+ str(max_open)
 				return s
 			
 			if s.depth < self.max_depth:
@@ -176,7 +180,7 @@ class Depth(object):
 						up.setBoxFather(s.box)
 						up.setDepth(s.depth)
 						self.open_nodes.append(up)
-						t_open += 1
+						# t_open += 1
 
 				# Abre vizinho da esquerda se possivel
 				left = Puzzle(self.size)
@@ -187,7 +191,7 @@ class Depth(object):
 						left.setBoxFather(s.box)
 						left.setDepth(s.depth)
 						self.open_nodes.append(left)
-						t_open += 1
+						# t_open += 1
 
 				# Abre vizinho de baixo se possivel
 				down = Puzzle(self.size)
@@ -198,7 +202,7 @@ class Depth(object):
 						down.setBoxFather(s.box)
 						down.setDepth(s.depth)
 						self.open_nodes.append(down)
-						t_open += 1
+						# t_open += 1
 
 				# Abre vizinho de direita se possivel
 				right = Puzzle(self.size)
@@ -209,7 +213,7 @@ class Depth(object):
 						right.setBoxFather(s.box)
 						right.setDepth(s.depth)
 						self.open_nodes.append(right)
-						t_open += 1
+						# t_open += 1
 
 		return None
 
@@ -227,11 +231,16 @@ class Breadth(object):
 
 	def search(self):
 		
-		t_open = 1
+		max_open = 1
 
 		# t_visited = 0
 
 		while self.open_nodes:
+
+			if len(self.open_nodes) > max_open:
+				max_open = len(self.open_nodes)
+
+
 			s = self.open_nodes.popleft()
 
 			# self.visited.append(s.box)
@@ -239,7 +248,7 @@ class Breadth(object):
 
 			if s.is_final():
 				# print "Visited: "+ str(t_visited)
-				print "Open: "+ str(t_open)
+				print "Open: "+ str(max_open)
 				return s
 			
 			# Abre vizinho de cima se possivel
@@ -250,7 +259,7 @@ class Breadth(object):
 				if not up.box == s.box_f:
 					up.setBoxFather(s.box) 
 					self.open_nodes.append(up)
-					t_open += 1
+					# t_open += 1
 			
 			# Abre vizinho da esquerda se possivel
 			left = Puzzle(self.size)
@@ -260,7 +269,7 @@ class Breadth(object):
 				if not left.box == s.box_f:
 					left.setBoxFather(s.box)
 					self.open_nodes.append(left)
-					t_open += 1
+					# t_open += 1
 
 			# Abre vizinho de baixo se possivel
 			down = Puzzle(self.size)
@@ -270,7 +279,7 @@ class Breadth(object):
 				if not down.box == s.box_f:
 					down.setBoxFather(s.box)
 					self.open_nodes.append(down)
-					t_open += 1
+					# t_open += 1
 
 
 			# Abre vizinho de direita se possivel
@@ -281,7 +290,7 @@ class Breadth(object):
 				if not right.box == s.box_f:
 					right.setBoxFather(s.box)
 					self.open_nodes.append(right)
-					t_open += 1
+					# t_open += 1
 
 		return None
 
@@ -297,7 +306,7 @@ class ItetariveDeapth(object):
 
 	def search(self):
 
-		t_open = 1
+		max_open = 0
 
 		# t_visited = 0
 
@@ -311,6 +320,9 @@ class ItetariveDeapth(object):
 
 			while self.open_nodes:
 
+				if len(self.open_nodes) > max_open:
+					max_open = len(self.open_nodes)
+
 				s = self.open_nodes.pop()
 
 				# self.visited.append(s.box)
@@ -318,7 +330,7 @@ class ItetariveDeapth(object):
 
 				if s.is_final():
 					# print "Visited: "+ str(t_visited)
-					print "Open: "+ str(t_open)
+					print "Open: "+ str(max_open)
 					return s
 
 				if s.depth < depth:
@@ -332,7 +344,7 @@ class ItetariveDeapth(object):
 							up.setBoxFather(s.box)
 							up.setDepth(s.depth)
 							self.open_nodes.append(up)
-							t_open += 1
+							# t_open += 1
 
 					# Abre vizinho da esquerda se possivel
 					left = Puzzle(self.size)
@@ -343,7 +355,7 @@ class ItetariveDeapth(object):
 							left.setBoxFather(s.box)
 							left.setDepth(s.depth)
 							self.open_nodes.append(left)
-							t_open += 1
+							# t_open += 1
 
 					# Abre vizinho de baixo se possivel
 					down = Puzzle(self.size)
@@ -354,7 +366,7 @@ class ItetariveDeapth(object):
 							down.setBoxFather(s.box)
 							down.setDepth(s.depth)
 							self.open_nodes.append(down)
-							t_open += 1
+							# t_open += 1
 
 					# Abre vizinho de direita se possivel
 					right = Puzzle(self.size)
@@ -365,7 +377,7 @@ class ItetariveDeapth(object):
 							right.setBoxFather(s.box)
 							right.setDepth(s.depth)
 							self.open_nodes.append(right)
-							t_open += 1
+							# t_open += 1
 			depth += 1
 			# print depth
 		return None
@@ -389,7 +401,7 @@ def print_result(path, i_state, empty_p):
 		empty_p[1] = x[1]
 
 
-def main():
+def main(argv):
 
 	max_shuffle = 50
 
@@ -398,30 +410,190 @@ def main():
 	# print "p shuffle: "
 	# p.shuffle(max_shuffle)
 	
-	# p.box = [[1,2,3],[4,7,5],[0,6,8]]  # 16 passos
+
+	# 8 PASSOS
+	# p.box = [[0, 2, 3],[1, 6, 8],[4, 7, 5]]
+	# p.empty_px = 0
+	# p.empty_py = 0
+
+	# p.box = [[4, 1, 3],[7, 2, 6],[5, 8, 0]]
+	# p.empty_px = 2
+	# p.empty_py = 2
+
+	# p.box = [[4, 1, 3],[7, 0, 6],[5, 2, 8]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+	# p.box = [[2, 4, 3],[1, 8, 5],[0, 7, 6]]
 	# p.empty_px = 2
 	# p.empty_py = 0
 
-	p.box = [[8,6,7],[2,5,4],[3,0,1]]  # 31 passos
-	p.empty_px = 2
-	p.empty_py = 1
-	
-	# p.box = [[3,1,2],[4,0,5],[6,7,8]]  # 20 passos
+	# p.box = [[2, 3, 6],[1, 5, 8],[4, 7, 0]]
+	# p.empty_px = 2
+	# p.empty_py = 2
+
+
+	# 10 PASSOS
+	# p.box = [[1, 3, 6],[2, 0, 8],[4, 7, 5]]
 	# p.empty_px = 1
 	# p.empty_py = 1
+
+	# p.box = [[1, 2, 3],[6, 0, 8],[5, 4, 7]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+	# p.box = [[1, 3, 5],[8, 2, 6],[4, 7, 0]]
+	# p.empty_px = 2
+	# p.empty_py = 2
+
+	# p.box = [[1, 4, 2],[7, 0, 3],[5, 8, 6]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+	# p.box = [[1, 3, 0],[4, 6, 5],[7, 2, 8]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+
+	# 12 PASSOS
+	# p.box = [[1, 3, 0],[7, 2, 8],[6, 4, 5]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+	# p.box = [[5, 1, 6],[3, 0, 2],[4, 7, 8]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+	# p.box = [[1, 3, 5],[7, 0, 6],[8, 2, 4]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+	# p.box = [[4, 3, 0],[2, 8, 5],[1, 7, 6]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+	# p.box = [[1, 2, 0],[4, 7, 3],[8, 5, 6]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+	
+	# 14 PASSOS
+	# p.box = [[1, 4, 2],[7, 0, 6],[8, 5, 3]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+	# p.box = [[6, 2, 0],[1, 4, 5],[7, 8, 3]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+	# p.box = [[3, 5, 6],[4, 1, 2],[0, 7, 8]]
+	# p.empty_px = 2
+	# p.empty_py = 0
+
+	# p.box = [[2, 3, 5],[8, 4, 6],[1, 7, 0]]
+	# p.empty_px = 2
+	# p.empty_py = 2
+
+	# p.box = [[7, 5, 1],[2, 0, 3],[8, 4, 6]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+
+	# 16 PASSOS
+	# p.box = [[1, 2, 4],[8, 7, 5],[0, 6, 3]]
+	# p.empty_px = 2
+	# p.empty_py = 0
+
+	# p.box = [[0, 7, 4],[1, 5, 3],[8, 2, 6]]
+	# p.empty_px = 0
+	# p.empty_py = 0
+
+	# p.box = [[4, 3, 6],[1, 7, 8],[2, 5, 0]]
+	# p.empty_px = 2
+	# p.empty_py = 2
+
+	# p.box = [[1, 5, 6],[2, 0, 8],[4, 3, 7]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+	# p.box = [[1, 2, 3],[4, 7, 5],[0, 6, 8]]
+	# p.empty_px = 2
+	# p.empty_py = 0
+
+
+	# 18 PASSOS
+	# p.box = [[5, 1, 7],[4, 3, 2],[8, 6, 0]]
+	# p.empty_px = 2
+	# p.empty_py = 2
+
+	# p.box = [[0, 1, 3],[8, 2, 6],[7, 4, 5]]
+	# p.empty_px = 0
+	# p.empty_py = 0
+
+	# p.box = [[5, 8, 2],[4, 0, 7],[6, 1, 3]]
+	# p.empty_px = 1
+	# p.empty_py = 1
+
+	# p.box = [[4, 1, 8],[3, 2, 5],[0, 7, 6]]
+	# p.empty_px = 2
+	# p.empty_py = 0
+
+	# p.box = [[4, 3, 0],[7, 5, 2],[8, 1, 6]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+
+	# 20 PASSOS
+	# p.box = [[7, 3, 0],[2, 4, 8],[1, 6, 5]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+	# p.box = [[1, 4, 0],[3, 8, 2],[7, 6, 5]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+	# p.box = [[1, 2, 6],[8, 7, 4],[0, 5, 3]]
+	# p.empty_px = 2
+	# p.empty_py = 0
+
+	# p.box = [[2, 5, 0],[1, 8, 7],[4, 3, 6]]
+	# p.empty_px = 0
+	# p.empty_py = 2
+
+	p.box = [[3, 1, 2],[4, 0, 5],[6, 7, 8]]
+	p.empty_px = 1
+	p.empty_py = 1
+
+
+
+
+	# p.box = [[8,6,7],[2,5,4],[3,0,1]]  # 31 passos
+	# p.empty_px = 2
+	# p.empty_py = 1
+
+
+
+
+
+
+
+
 	
 	# print "p: "
 	# print_box(p.box)
-
-	# bfs = Breadth(p, 3)
-	dfs = Depth(p, 3, max_shuffle)
-	# idfs = ItetariveDeapth(p, 3)
+	print argv[1]
+	if argv[1] == "1":
+		bfs = Breadth(p, 3)
+		result = bfs.search()
+	elif argv[1] == "2":
+		dfs = Depth(p, 3, max_shuffle)
+		result = dfs.search()
+	else:
+		idfs = ItetariveDeapth(p, 3)
+		result = idfs.search()
 	
-	# result = bfs.search()
-	result = dfs.search()
-	# result = idfs.search()
 
-	print_result(result.path, p.box, [p.empty_px, p.empty_py])
+	# print_result(result.path, p.box, [p.empty_px, p.empty_py])
 
 	if result != None:
 		print "Resposta Encontrada"
@@ -432,4 +604,4 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
+	main(sys.argv)
