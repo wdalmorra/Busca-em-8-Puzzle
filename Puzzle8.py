@@ -2,6 +2,7 @@ from random import randint
 from copy import deepcopy
 from collections import deque
 import sys
+import Queue
 
 class Puzzle(object):
 	def __init__(self, size):
@@ -25,13 +26,30 @@ class Puzzle(object):
 
 		self.depth = 0
 
+		# pro A*
+		self.h = 0
+		self.g = 0
+		self.f = 0
+
 		# print self.box
+
+	def calcH1(self):
+		result = 0
+		for i in xrange(self.size):
+			for j in xrange(self.size):
+				if self.box[i][j] != ((i*self.size)+j+1):
+					result += 1
+		self.h = result-1
+		self.f = self.g + self.h
 
 	def setBoxFather(self, box):
 		self.box_f = deepcopy(box)
 
 	def setDepth(self, f_depth):
 		self.depth = f_depth + 1
+
+	def setG(self, g):
+		self.g = g
 
 	def copy(self, p):
 
@@ -230,7 +248,7 @@ class Breadth(object):
 		self.size = size
 
 	def search(self):
-		
+
 		max_open = 1
 
 		# t_visited = 0
@@ -239,7 +257,6 @@ class Breadth(object):
 
 			if len(self.open_nodes) > max_open:
 				max_open = len(self.open_nodes)
-
 
 			s = self.open_nodes.popleft()
 
@@ -250,7 +267,7 @@ class Breadth(object):
 				# print "Visited: "+ str(t_visited)
 				print "Open: "+ str(max_open)
 				return s
-			
+
 			# Abre vizinho de cima se possivel
 			up = Puzzle(self.size)
 			up.copy(s)
@@ -260,7 +277,7 @@ class Breadth(object):
 					up.setBoxFather(s.box) 
 					self.open_nodes.append(up)
 					# t_open += 1
-			
+
 			# Abre vizinho da esquerda se possivel
 			left = Puzzle(self.size)
 			left.copy(s)
@@ -281,7 +298,6 @@ class Breadth(object):
 					self.open_nodes.append(down)
 					# t_open += 1
 
-
 			# Abre vizinho de direita se possivel
 			right = Puzzle(self.size)
 			right.copy(s)
@@ -290,6 +306,90 @@ class Breadth(object):
 				if not right.box == s.box_f:
 					right.setBoxFather(s.box)
 					self.open_nodes.append(right)
+					# t_open += 1
+
+		return None
+
+class AStar(object):
+	
+	def __init__(self, initial_state, size):
+		
+		self.open_nodes = Queue.PriorityQueue()
+		self.visited = []
+		self.initial_state = deepcopy(initial_state)
+		self.initial_state.calcH1()
+		self.open_nodes.put(self.initial_state, self.initial_state.f)
+
+		self.size = size
+
+	def search(self):
+		
+		max_open = 1
+
+		# t_visited = 0
+
+		while not self.open_nodes.empty():
+
+			if self.open_nodes.qsize() > max_open:
+				max_open = self.open_nodes.qsize()
+
+
+			s = self.open_nodes.get()
+			print s.h
+			self.visited.append(s.box)
+			# t_visited += 1
+			if s.is_final():
+				# print "Visited: "+ str(t_visited)
+				print "Open: "+ str(max_open)
+				return s
+			
+			# Abre vizinho de cima se possivel
+			up = Puzzle(self.size)
+			up.copy(s)
+			if up.move_up():
+				if not up.box in self.visited: 
+				# if not up.box == s.box_f:
+					up.setBoxFather(s.box)
+					up.setG(s.g+1)
+					up.calcH1()
+					self.open_nodes.put(up, up.f)
+					# t_open += 1
+			
+			# Abre vizinho da esquerda se possivel
+			left = Puzzle(self.size)
+			left.copy(s)
+			if left.move_left():
+				if not left.box in self.visited: 
+				# if not left.box == s.box_f:
+					left.setBoxFather(s.box)
+					left.setG(s.g+1)
+					left.calcH1()
+					self.open_nodes.put(left, left.f)
+					# t_open += 1
+
+			# Abre vizinho de baixo se possivel
+			down = Puzzle(self.size)
+			down.copy(s)
+			if down.move_down():
+				if not down.box in self.visited: 
+				# if not down.box == s.box_f:
+					down.setBoxFather(s.box)
+					down.setG(s.g+1)
+					down.calcH1()
+					self.open_nodes.put(down, down.f)
+					# t_open += 1
+
+
+			# Abre vizinho de direita se possivel
+			right = Puzzle(self.size)
+			right.copy(s)
+			if right.move_right():
+				if not right.box in self.visited: 
+				# if not right.box == s.box_f:
+					right.setBoxFather(s.box)
+					right.setG(s.g+1)
+					right.calcH1()
+					self.open_nodes.put(right, right.f)
 					# t_open += 1
 
 		return None
@@ -412,9 +512,9 @@ def main(argv):
 	
 
 	# 8 PASSOS
-	# p.box = [[0, 2, 3],[1, 6, 8],[4, 7, 5]]
-	# p.empty_px = 0
-	# p.empty_py = 0
+	p.box = [[0, 2, 3],[1, 6, 8],[4, 7, 5]]
+	p.empty_px = 0
+	p.empty_py = 0
 
 	# p.box = [[4, 1, 3],[7, 2, 6],[5, 8, 0]]
 	# p.empty_px = 2
@@ -560,9 +660,9 @@ def main(argv):
 	# p.empty_px = 0
 	# p.empty_py = 2
 
-	p.box = [[3, 1, 2],[4, 0, 5],[6, 7, 8]]
-	p.empty_px = 1
-	p.empty_py = 1
+	# p.box = [[3, 1, 2],[4, 0, 5],[6, 7, 8]]
+	# p.empty_px = 1
+	# p.empty_py = 1
 
 
 
@@ -572,13 +672,6 @@ def main(argv):
 	# p.empty_py = 1
 
 
-
-
-
-
-
-
-	
 	# print "p: "
 	# print_box(p.box)
 	print argv[1]
@@ -588,12 +681,14 @@ def main(argv):
 	elif argv[1] == "2":
 		dfs = Depth(p, 3, max_shuffle)
 		result = dfs.search()
-	else:
+	elif argv[1] == "3":
 		idfs = ItetariveDeapth(p, 3)
 		result = idfs.search()
-	
+	else:
+		astar = AStar(p, 3)
+		result = astar.search()
 
-	# print_result(result.path, p.box, [p.empty_px, p.empty_py])
+	print_result(result.path, p.box, [p.empty_px, p.empty_py])
 
 	if result != None:
 		print "Resposta Encontrada"
