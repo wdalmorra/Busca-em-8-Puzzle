@@ -4,6 +4,8 @@ from collections import deque
 import sys
 import Queue
 
+HEURISTICA = 1
+
 class Puzzle(object):
 	def __init__(self, size):
 
@@ -40,6 +42,14 @@ class Puzzle(object):
 				if self.box[i][j] != ((i*self.size)+j+1):
 					result += 1
 		self.h = result-1
+		self.f = self.g + self.h
+	
+	def calcH2(self):
+		result = 0
+		for i in xrange(self.size):
+			for j in xrange(self.size):
+				if self.box[i][j] != 0:
+					result += abs(((i+1) - (self.box[i][j] / self.size)) + ((j+1) - (self.box[i][j] % self.size)))
 		self.f = self.g + self.h
 
 	def setBoxFather(self, box):
@@ -318,7 +328,7 @@ class AStar(object):
 		self.visited = []
 		self.initial_state = deepcopy(initial_state)
 		self.initial_state.calcH1()
-		self.open_nodes.put(self.initial_state, self.initial_state.f)
+		self.open_nodes.put((self.initial_state.f, self.initial_state))
 
 		self.size = size
 
@@ -335,7 +345,7 @@ class AStar(object):
 
 
 			s = self.open_nodes.get()
-			print s.h
+			s = s[1]
 			self.visited.append(s.box)
 			# t_visited += 1
 			if s.is_final():
@@ -351,8 +361,11 @@ class AStar(object):
 				# if not up.box == s.box_f:
 					up.setBoxFather(s.box)
 					up.setG(s.g+1)
-					up.calcH1()
-					self.open_nodes.put(up, up.f)
+					if HEURISTICA == 1:
+						up.calcH1()
+					else:
+						up.calcH2()
+					self.open_nodes.put((up.f, up))
 					# t_open += 1
 			
 			# Abre vizinho da esquerda se possivel
@@ -363,8 +376,11 @@ class AStar(object):
 				# if not left.box == s.box_f:
 					left.setBoxFather(s.box)
 					left.setG(s.g+1)
-					left.calcH1()
-					self.open_nodes.put(left, left.f)
+					if HEURISTICA == 1:
+						left.calcH1()
+					else:
+						left.calcH2()
+					self.open_nodes.put((left.f, left))
 					# t_open += 1
 
 			# Abre vizinho de baixo se possivel
@@ -375,8 +391,11 @@ class AStar(object):
 				# if not down.box == s.box_f:
 					down.setBoxFather(s.box)
 					down.setG(s.g+1)
-					down.calcH1()
-					self.open_nodes.put(down, down.f)
+					if HEURISTICA == 1:
+						down.calcH1()
+					else:
+						down.calcH2()
+					self.open_nodes.put((down.f, down))
 					# t_open += 1
 
 
@@ -388,8 +407,11 @@ class AStar(object):
 				# if not right.box == s.box_f:
 					right.setBoxFather(s.box)
 					right.setG(s.g+1)
-					right.calcH1()
-					self.open_nodes.put(right, right.f)
+					if HEURISTICA == 1:
+						right.calcH1()
+					else:
+						right.calcH2()
+					self.open_nodes.put((right.f, right))
 					# t_open += 1
 
 		return None
@@ -674,7 +696,6 @@ def main(argv):
 
 	# print "p: "
 	# print_box(p.box)
-	print argv[1]
 	if argv[1] == "1":
 		bfs = Breadth(p, 3)
 		result = bfs.search()
