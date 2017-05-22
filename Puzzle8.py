@@ -49,7 +49,15 @@ class Puzzle(object):
 		for i in xrange(self.size):
 			for j in xrange(self.size):
 				if self.box[i][j] != 0:
-					result += abs(((i+1) - (self.box[i][j] / self.size)) + ((j+1) - (self.box[i][j] % self.size)))
+					# print "----------"
+					# print str(i) + " " + str(j)
+					# print str(self.box[i][j])
+					# print str((self.box[i][j]-1) / self.size) + " " + str((self.box[i][j]-1) % self.size)
+					result += abs(((i) - ((self.box[i][j]-1) / self.size))) + abs(((j) - ((self.box[i][j]-1) % self.size)))
+					# print tmp
+					# print "------------"
+					# result += tmp
+		self.h = result
 		self.f = self.g + self.h
 
 	def setBoxFather(self, box):
@@ -327,7 +335,10 @@ class AStar(object):
 		self.open_nodes = Queue.PriorityQueue()
 		self.visited = []
 		self.initial_state = deepcopy(initial_state)
-		self.initial_state.calcH1()
+		if HEURISTICA == 1:
+			self.initial_state.calcH1()
+		else:
+			self.initial_state.calcH2()
 		self.open_nodes.put((self.initial_state.f, self.initial_state))
 
 		self.size = size
@@ -346,9 +357,10 @@ class AStar(object):
 
 			s = self.open_nodes.get()
 			s = s[1]
+			print s.f
 			self.visited.append(s.box)
 			# t_visited += 1
-			if s.is_final():
+			if s.is_final(): 
 				# print "Visited: "+ str(t_visited)
 				print "Open: "+ str(max_open)
 				return s
@@ -534,9 +546,9 @@ def main(argv):
 	
 
 	# 8 PASSOS
-	p.box = [[0, 2, 3],[1, 6, 8],[4, 7, 5]]
-	p.empty_px = 0
-	p.empty_py = 0
+	# p.box = [[0, 2, 3],[1, 6, 8],[4, 7, 5]]
+	# p.empty_px = 0
+	# p.empty_py = 0
 
 	# p.box = [[4, 1, 3],[7, 2, 6],[5, 8, 0]]
 	# p.empty_px = 2
@@ -689,9 +701,9 @@ def main(argv):
 
 
 
-	# p.box = [[8,6,7],[2,5,4],[3,0,1]]  # 31 passos
-	# p.empty_px = 2
-	# p.empty_py = 1
+	p.box = [[8,6,7],[2,5,4],[3,0,1]]  # 31 passos
+	p.empty_px = 2
+	p.empty_py = 1
 
 
 	# print "p: "
